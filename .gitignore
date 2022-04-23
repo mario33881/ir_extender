@@ -1,0 +1,10 @@
+docs/svg-inkscape
+docs/authors.tex
+docs/*.pdf
+docs/*.pdf_tex
+docs/*.aux
+docs/*.synctex.gz
+docs/*.toc
+docs/*.fdb_latexmk
+docs/*.log
+docs/*.fls
