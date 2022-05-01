@@ -1,6 +1,3 @@
-#define MSG_BUFFER_SIZE (500)
-#define RECV_PIN 14           // su Node MCU e' il Pin D5
-
 #include <Arduino.h>
 
 #include <ESP8266WiFi.h>
@@ -15,12 +12,10 @@
 #include <IRrecv.h>
 #include <IRutils.h>
 
-// Update these with values suitable for your network.
-const char* wifi_ssid = "<Wi-Fi SSID>";
-const char* wifi_pwd = "<Wi-Fi password>";
-const char* mqtt_server_url = "<HiveMQ MQTT URL>";
-const char* mqtt_server_user = "<HiveMQ MQTT username>";
-const char* mqtt_server_pwd = "<HiveMQ MQTT password>";
+#include <Utils.hpp>
+
+#include "main.hpp"
+#include "secrets.h"
 
 // Debug
 const bool virtualIRrecv = false;
@@ -33,8 +28,6 @@ BearSSL::CertStore certStore;
 WiFiClientSecure espClient;
 PubSubClient * mqttClient;
 
-char msg[MSG_BUFFER_SIZE+1];
-
 IRrecv irrecv(RECV_PIN);
 decode_results ir_data;
 
@@ -42,18 +35,18 @@ decode_results ir_data;
 /**
  * Si connette alla rete Wi-Fi.
  * 
- * Variabili globali:
- * - wifi_ssid: SSID della rete Wi-Fi a cui connettersi
- * - wifi_pwd: password della rete Wi-Fi
+ * Macro:
+ * - WIFI_SSID: SSID della rete Wi-Fi a cui connettersi
+ * - WIFI_PASS: password della rete Wi-Fi
 */
 void connect_wifi() {
     delay(10);
     Serial.println();
     Serial.print("Connecting to ");
-    Serial.println(wifi_ssid);
+    Serial.println(WIFI_SSID);
 
     WiFi.mode(WIFI_STA);  // modalita' stazione: connettiti ad una rete wireless esistente
-    WiFi.begin(wifi_ssid, wifi_pwd);
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
 
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -96,6 +89,11 @@ void setDateTime() {
  * Si connette al server MQTT.
  * 
  * Se ci riesce manda un messaggio al topic "connected" indicando che il dispositivo si e' connesso correttamente
+ * 
+ * Macro:
+ * - MQTT_CLIENT_ID: identificativo del client MQTT
+ * - MQTT_USER: username MQTT
+ * - MQTT_PASS: password MQTT
 */
 void connect_mqtt() {
     
@@ -103,7 +101,7 @@ void connect_mqtt() {
         Serial.print("Attempting MQTT connection...");
 
         // Attempt to connect
-        if (mqttClient->connect("IREXTENDER - Transmitter", mqtt_server_user, mqtt_server_pwd)) {
+        if (mqttClient->connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS)) {
             Serial.println(" connected");
             mqttClient->publish("connected", "Transmitter connected successfully");
         } 
@@ -120,13 +118,10 @@ void connect_mqtt() {
 /**
  * Invia il valore letto dal sensore IR tramite MQTT.
 */
-void send_ir_msg(uint64_t value){
-    snprintf(msg, MSG_BUFFER_SIZE, "%llu", value);
-    Serial.print("Raw value: ");
-    Serial.println(value);
+void send_ir_msg(String value){
     Serial.print("Published message: ");
-    Serial.println(msg);
-    mqttClient->publish("signal", msg);
+    Serial.println(value);
+    mqttClient->publish("signal", value.c_str());
 }
 
 
@@ -137,6 +132,9 @@ void send_ir_msg(uint64_t value){
  * - Si connettite al Wi-Fi
  * - Imposta la data, necessaria per validare i Certificati SSL
  * - Inizializza il file system per poter configurare il client MQTT per fargli usare i certificati SSL
+ * 
+ * Macro:
+ * - MQTT_SERVER: url del server MQTT
 */
 void setup() {
     
@@ -166,7 +164,18 @@ void setup() {
     mqttClient = new PubSubClient(*bear);
 
     // imposta il server MQTT
-    mqttClient->setServer(mqtt_server_url, 8883);
+    mqttClient->setServer(MQTT_SERVER, 8883);
+
+    // imposta dimensione buffer dei messaggi
+    mqttClient->setBufferSize(1024);
+
+    // segnala fine del setup
+    for (int i = 0; i < 3; i++) {
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(200);
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(200);
+    }
 }
 
 
@@ -192,11 +201,25 @@ void loop() {
 
         if (virtualIRrecv){
             // debug
-            send_ir_msg(random(0, 1000));
+            send_ir_msg(String(random(0, 1000)));
             delay(10000);
         }
         else {
-            send_ir_msg(ir_data.value);
+            // visualizza informazioni utili sui dati letti
+            Serial.print(resultToHumanReadableBasic(&ir_data));
+            Serial.println("");
+            
+            // Ottieni array valori letti in un formato comodo per la funzione sendRaw().
+            uint16_t *raw_array = resultToRawArray(&ir_data);
+            // Conta il numero di elementi dell'array
+            uint16_t length = getCorrectedRawLength(&ir_data);
+
+            // converti l'array in una stringa con formato "<length>|<val1>, <val2>,..." e inviala al broker MQTT
+            String data_msg = uint16ArrayToString(raw_array, length);
+            send_ir_msg(data_msg);
+
+            // Dealloca memoria allocata da resultToRawArray().
+            delete [] raw_array;
         }
         
         digitalWrite(LED_BUILTIN, HIGH);
