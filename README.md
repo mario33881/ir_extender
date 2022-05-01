@@ -40,13 +40,12 @@ I dispositivi sono schede NodeMCU per permettere di sviluppare velocemente e com
 ## Requisiti progetto
 
 * [X] Completare il codice del receiver: fatto
-* [ ] Completare il codice del transmitter: in corso
-* [X] Utilizzare una piattaforma cloud: [HiveMQ](https://www.hivemq.com/)
+* [X] Completare il codice del transmitter: fatto
+* [X] Utilizzare una piattaforma cloud ([HiveMQ](https://www.hivemq.com/)): fatto
 * [ ] Scrivere una documentazione in LaTeX: in corso
 * [X] Creare schemi in fritzing per la documentazione: fatto
 
 ## Autori
 
-Davide Pizzoli
-
-[Stefano Zenaro](https://github.com/mario33881)
+- [Davide Pizzoli](https://github.com/pizidavi)
+- [Stefano Zenaro](https://github.com/mario33881)
