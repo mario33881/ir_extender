@@ -1,131 +1,162 @@
-% !TeX TXS-program:compile = txs:///pdflatex/[--shell-escape]
-
-\documentclass[a4paper]{article}
+\documentclass[a4paper,11pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
-
-\usepackage{subfiles}
-\usepackage{alertmessage}
-\usepackage{svg}
+\usepackage[sfdefault]{roboto}
+\usepackage{layaureo} % reduce margins
+\usepackage{url}
+\usepackage{hyperref}
 \usepackage{graphicx}
-\usepackage{subfig}
 \usepackage{float}
+\usepackage{alertmessage}
 
-\title{IR Extender}
+% Setup
+\hypersetup{hidelinks}
 
-\include{authors.tex}
 
-\date{
-    Aprile 2022 \endgraf\bigskip
-    \bigskip\bigskip\bigskip\bigskip\bigskip
-    Relazione in corso di scrittura
-}
-
+% Document
 \begin{document}
+\title{IR Extender}
+\author{Davide Pizzoli \\ Stefano Zenaro}
+\date{Aprile 2022}
 
+\pagenumbering{gobble}
+
+% Title
 \begin{titlepage}
-\maketitle    
+  \maketitle
+  \thispagestyle{empty}
 \end{titlepage}
 
+% Table of contents
 \tableofcontents
+\addcontentsline{toc}{section}{Indice}
 \clearpage
 
+\pagenumbering{arabic}
+
+% Contents
 \section{Introduzione}
 
-Il seguente documento descrive come realizzare un IR Extender.
+  Il seguente documento descrive come realizzare un IR Extender.
 
-Il sistema e' formato da 3 componenti principali:
+  \subsection{Funzionamento}
 
-\includesvg[width=4in]{assets/ir_extender}
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{assets/ir_extender}
+      \caption{IR Extender}
+    \end{figure}
 
-\begin{itemize}
-    \item Ricevitore e Publisher MQTT: un NodeMCU e' collegato ad un ricevitore infrarossi e alla rete Wi-Fi.
+    % TODO: describe how to use the IR Extender
 
-        Il compito di questo dispositivo e' di:
-        \begin{enumerate}
-            \item Ricevere un segnale infrarossi da un telecomando.
-            \item Inviare l'informazione del segnale infrarossi, utilizzando la rete Wi-Fi, con il protocollo MQTT al Broker MQTT.
-        \end{enumerate}
+  \subsection{Componenti}
 
-        Nel contesto del sistema e' il ricevitore.
-    
-    \item Broker MQTT: un servizio in cloud gestito da HiveMQ.
-    
-        Il suo compito e':
-        \begin{enumerate}
-            \item Ricevere l'informazione proveniente dal Publisher MQTT.
-            \item Inviare l'informazione MQTT al Subscriber MQTT.
-        \end{enumerate}
+    \begin{itemize}
+      \item IR Receiver
+      \item IR Transmitter
+      \item ESP32 / ESP8266 * 2
+      \item Jumpers * 6
+      \item Breadboard * 2
+    \end{itemize}
 
-        Nel sistema il suo ruolo e' da tramite tra il ricevitore e il trasmettitore.
-    
-    \item Trasmettitore e Subscriber MQTT: un altro NodeMCU e' collegato ad un trasmettitore infrarossi e alla rete Wi-Fi.
-    
-        Il compito di questo dispositivo e' di:
-        \begin{enumerate}
-            \item Ricevere l'informazione dal Broker MQTT
-            \item Inviare un segnale infrarossi con l'informazione del Broker MQTT con il trasmettitore infrarossi
-        \end{enumerate}
+  \subsection{Online Services}
 
-        Nel contesto del sistema e' il trasmettitore.
+    \begin{itemize}
+      \item Broker MQTT (es. \href{https://www.hivemq.com/}{HiveMQ})
+    \end{itemize}
 
-\end{itemize}
+  \alertinfo{Il Ricevitore e Trasmettitore possono essere collegati a due reti WiFi differenti.}
 
-\alertinfo{Le reti Wi-Fi del ricevitore e del trasmettitore possono essere due reti differenti o la stessa rete.}
-\alertinfo{Le 3 componenti comunicano mediante il protocollo MQTT.}
 
 \section{Ricevitore}
+\label{sec:receiver}
 
-Il dispositivo ricevitore si occupa di:
-\begin{enumerate}
-    \item Ricevere un segnale infrarossi da un telecomando.
-    \item Inviare l'informazione del segnale infrarossi, utilizzando la rete Wi-Fi, con il protocollo MQTT al Broker MQTT.
-\end{enumerate}
+  Il dispositivo ricevitore si occupa di:
 
-\begin{figure}[H]
-    \centering
-    \subfloat{{\includegraphics[width=5cm]{assets/receiver1} }}%
-    \qquad
-    \subfloat{{\includegraphics[width=5cm]{assets/receiver2} }}%
-    \qquad
-    \subfloat{{\includegraphics[width=5cm]{assets/receiver3} }}%
-    \caption{Foto Ricevitore}%
-    \label{fig:example}%
-\end{figure}
+  \begin{enumerate}
+    \item Ricevere un segnale infrarossi da un telecomando
+    \item Inviare l'informazione del segnale infrarossi, utilizzando la rete Wi-Fi, con il protocollo MQTT al Broker MQTT
+  \end{enumerate}
 
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{assets/receiver_fritzing}
+  \subsection{Circuito}
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.5\textwidth,height=\textheight,keepaspectratio]{assets/receiver_fritzing}
+      \caption{Circuito Ricevitore}
+    \end{figure}
+
+  \subsection{Configurazione}
+
+  \begin{enumerate}
+    \item Aprire la cartella \texttt{receiver/src}
+    \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
+    \item Inserire i dati di accesso al rete WiFi e al \hyperref[sec:Broker]{Broker MQTT}
+  \end{enumerate}
+
 
 \section{Trasmettitore}
-Il dispositivo trasmettitore si occupa di:
+\label{sec:transmitter}
 
-\begin{enumerate}
+  Il dispositivo trasmettitore si occupa di:
+
+  \begin{enumerate}
     \item Ricevere l'informazione dal Broker MQTT
-    \item Inviare un segnale infrarossi con l'informazione del Broker MQTT con il trasmettitore infrarossi
-\end{enumerate}
+    \item Inviare il segnale ricevuto tramite il trasmettitore infrarossi
+  \end{enumerate}
 
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{assets/transmitter_fritzing}
 
-\section{Broker MQTT}
+  \subsection{Circuito}
 
-Il compito del Broker MQTT e' di:
-\begin{enumerate}
-    \item Ricevere l'informazione proveniente dal Publisher MQTT.
-    \item Inviare l'informazione MQTT ai Subscriber MQTT.
-\end{enumerate}
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.5\textwidth,height=\textheight,keepaspectratio]{assets/transmitter_fritzing}
+      \caption{Circuito Trasmettitore}
+    \end{figure}
 
-Per creare un Broker MQTT e' necessario registrarsi, effettuare l'accesso e poi creare un nuovo cluster:
 
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{assets/hivemq_clusters}
+  \subsection{Configurazione}
 
-\alertinfo{Dalla schermata principale e' possibile creare nuovi cluster e visualizzare informazioni di stato tra cui l'URL e la porta del Broker MQTT.}
+    \begin{enumerate}
+      \item Aprire la cartella \texttt{transmitter/src}
+      \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
+      \item Inserire i dati di accesso al rete WiFi e al \hyperref[sec:Broker]{Broker MQTT}
+    \end{enumerate}
 
-Cliccando su "manage cluster" e' possibile vedere le informazioni di stato precedenti piu' altre informazioni relative all'uso del cluster:
 
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{assets/hivemq_clusterdetails}
+\section{Broker MQTT (HiveMQ)}
+\label{sec:Broker}
 
-Spostandosi nella tab "Access Management" e' possibile creare e vedere account utilizzati dai dispositivi per connettersi al Broker MQTT:
+  \subsection{Configurazione}
 
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{assets/hivemq_access_management}
+    \begin{enumerate}
+      \item \href{https://console.hivemq.cloud/}{Registrarsi su HiveMQ}
+      \item Create un nuovo \emph{Cluster}
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textwidth,height=\textheight,keepaspectratio]{assets/hivemq_clusters}
+        \end{figure}
+
+        Salvarsi l'\emph{URL} del Cluster, che sarà utilizzato per configurare il Ricevitore e il Trasmettitore.
+
+      \item Cliccare su \emph{Manage cluster}
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textwidth,height=\textheight,keepaspectratio]{assets/hivemq_clusterdetails}
+        \end{figure}
+
+      \item Nella sezione \emph{Access Management} aggiungere delle credenziali di accesso al \emph{Cluster}
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textwidth,height=\textheight,keepaspectratio]{assets/hivemq_access_management}
+        \end{figure}
+
+    \end{enumerate}
+\clearpage
+
+% List of figures
+\listoffigures
+\addcontentsline{toc}{section}{\listfigurename}
 
 \end{document}
