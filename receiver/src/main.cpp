@@ -34,7 +34,7 @@ decode_results ir_data;
 
 /**
  * Si connette alla rete Wi-Fi.
- * 
+ *
  * Macro:
  * - WIFI_SSID: SSID della rete Wi-Fi a cui connettersi
  * - WIFI_PASS: password della rete Wi-Fi
@@ -64,7 +64,7 @@ void connect_wifi() {
 
 /**
  * Imposta la data corretta connettendosi ad un server NTP.
- * 
+ *
  * Necessario per validare i certificati SSL.
 */
 void setDateTime() {
@@ -87,16 +87,16 @@ void setDateTime() {
 
 /**
  * Si connette al server MQTT.
- * 
+ *
  * Se ci riesce manda un messaggio al topic "connected" indicando che il dispositivo si e' connesso correttamente
- * 
+ *
  * Macro:
  * - MQTT_CLIENT_ID: identificativo del client MQTT
  * - MQTT_USER: username MQTT
  * - MQTT_PASS: password MQTT
 */
 void connect_mqtt() {
-    
+
     while (!mqttClient->connected()) {
         Serial.print("Attempting MQTT connection...");
 
@@ -104,7 +104,7 @@ void connect_mqtt() {
         if (mqttClient->connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS)) {
             Serial.println(" connected");
             mqttClient->publish("connected", "Receiver connected successfully");
-        } 
+        }
         else {
             Serial.print(" failed, rc = ");
             Serial.print(mqttClient->state());
@@ -133,13 +133,13 @@ void send_ir_msg(String value){
  * - Imposta la data, necessaria per validare i Certificati SSL
  * - Inizializza il file system per poter configurare il client MQTT per fargli usare i certificati SSL
  * - Configura il client MQTT (URL e porta server, dimensione buffer messaggi) e lo usa per connettersi al broker MQTT
- * 
+ *
  * Macro:
  * - BUFFER_SIZE: dimensione buffer letti dal sensore IR
  * - MQTT_SERVER: url del server MQTT
 */
 void setup() {
-    
+
     Serial.begin(9600);
     pinMode(LED_BUILTIN, OUTPUT);
 
@@ -204,28 +204,28 @@ void successBlink(){
  * - se non si e' connessi al Broker MQTT, connettiti.
  * - quando viene letto un valore del sensore IR, invialo tramite MQTT
  *   > Esegui il blink del LED della scheda per indicare che un nuovo valore e' stato letto dal sensore IR e trasmesso al broker MQTT
- * 
+ *
  * I dati letti possono avere protocolli diversi:
  * - protocollo sconosciuto: non e' stato possibile riconoscere il protocollo. Verra' inviato un messaggio generico
- *  
+ *
  *   Formato messaggio: "-1|<length>|<value1>,<value2>,...|-1"
  *   Dove:
  *   + "-1" indica che il protocollo non e' stato riconosciuto
  *   + "<length>" e' il numero di valori "<valueX>"
  *   + "<valueX>" sono valori raw letti dal sensore IR. Questi valori verranno trasmessi dal metodo sendRaw() con il trasmettitore IR
  *   + "-1" (size) indica "non applicabile" poiche' il protocollo non richiede state[]
- * 
+ *
  * - protocollo con state: sono protocolli piu' complessi (ad esempio per i condizionatori)
- * 
+ *
  *   Formato messaggio: "<protocol>|<length>|<value1>,<value2>,...|<size>"
  *   Dove:
  *   + "<protocol>" e' un identificativo del protocollo rilevato dal sensore IR
  *   + "<length>" e' il numero di valori "<valueX>"
  *   + "<valueX>" sono valori raw letti dal sensore IR
  *   + "<size>" (in bit) verra' usato dal metodo send() con il trasmettitore IR
- * 
+ *
  * - protocollo semplice: il protocollo e' composto da un singolo valore
- * 
+ *
  *   Formato messaggio: "<protocol>|1|<value>|<size>"
  *   Dove:
  *   + "<protocol>" e' un identificativo del protocollo rilevato dal sensore IR
@@ -268,7 +268,7 @@ void loop() {
 
             successBlink();
         }
-        else if (hasACState(protocol) && ir_data.overflow == 0) {  
+        else if (hasACState(protocol) && ir_data.overflow == 0) {
             // Il messaggio necessita dell'utilizzo di state[]
             Serial.print("Protocollo state: protocol = ");
             Serial.print(protocol);
