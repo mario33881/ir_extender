@@ -1,12 +1,22 @@
 #include <Arduino.h>
 
-#include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include <time.h>
-#include <TZ.h>
-#include <FS.h>
-#include <LittleFS.h>
-#include <CertStoreBearSSL.h>
+
+#ifdef NODEMCU_ESP8266
+    #include <ESP8266WiFi.h>
+    #include <time.h>
+    #include <TZ.h>
+    #include <FS.h>
+    #include <LittleFS.h>
+    #include <CertStoreBearSSL.h>
+#else 
+    #ifdef NODEMCU_ESP32
+        #include <WiFi.h>
+        #include <WiFiClientSecure.h>
+    #else
+        #error Board not supported
+    #endif
+#endif
 
 #include <IRremoteESP8266.h>
 #include <IRrecv.h>
@@ -20,10 +30,12 @@
 // Debug
 const bool virtualIRrecv = false;
 
+#ifdef NODEMCU_ESP8266
 // A single, global CertStore which can be used by all connections.
 // Needs to stay live the entire time any of the WiFiClientBearSSLs
 // are present.
 BearSSL::CertStore certStore;
+#endif
 
 WiFiClientSecure espClient;
 PubSubClient * mqttClient;
@@ -62,6 +74,7 @@ void connect_wifi() {
 }
 
 
+#ifdef NODEMCU_ESP8266
 /**
  * Imposta la data corretta connettendosi ad un server NTP.
  *
@@ -83,6 +96,7 @@ void setDateTime() {
     gmtime_r(&now, &timeinfo);
     Serial.printf("%s %s", tzname[0], asctime(&timeinfo));
 }
+#endif
 
 
 /**
@@ -131,7 +145,9 @@ void send_ir_msg(String value){
  * - Abilita il ricevitore di segnali infrarossi e imposta un threshold per ridurre rumore rilevabile dal sensore IR
  * - Si connettite al Wi-Fi
  * - Imposta la data, necessaria per validare i Certificati SSL
+ *   > solo su ESP8266
  * - Inizializza il file system per poter configurare il client MQTT per fargli usare i certificati SSL
+ *   > solo su ESP8266
  * - Configura il client MQTT (URL e porta server, dimensione buffer messaggi) e lo usa per connettersi al broker MQTT
  *
  * Macro:
@@ -140,13 +156,16 @@ void send_ir_msg(String value){
 */
 void setup() {
 
-    Serial.begin(9600);
+    Serial.begin(115200);
     pinMode(LED_BUILTIN, OUTPUT);
 
     irrecv.setUnknownThreshold(BUFFER_SIZE+1);  // riduce probabilita' di leggere rumore
     irrecv.enableIRIn();
 
     connect_wifi();
+
+    #ifdef NODEMCU_ESP8266
+
     setDateTime();
 
     // -- Certificati SSL
@@ -165,6 +184,10 @@ void setup() {
     BearSSL::WiFiClientSecure *bear = new BearSSL::WiFiClientSecure();
     bear->setCertStore(&certStore);
     mqttClient = new PubSubClient(*bear);
+    #else
+    espClient.setInsecure();
+    mqttClient = new PubSubClient(espClient);
+    #endif
 
     // imposta il server MQTT
     mqttClient->setServer(MQTT_SERVER, 8883);
@@ -283,7 +306,8 @@ void loop() {
             // procollo semplice (esempio <= 64 bit)
             Serial.print("Protocollo semplice: Protocol = ");
             Serial.println(protocol);
-            send_ir_msg(String(protocol) + "|1|" + String(ir_data.value) + "|" + String(ir_data.bits));
+            String value = uint64ToString(ir_data.value);
+            send_ir_msg(String(protocol) + "|1|" + value + "|" + String(ir_data.bits));
             successBlink();
         }
 
