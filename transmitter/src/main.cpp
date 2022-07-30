@@ -62,11 +62,16 @@ void callback(char* topic, byte* payload, unsigned int payload_length) {
   String values(message_parts[2]);
   int size = message_parts[3].toInt();
 
-  Serial.print("values[");
+  Serial.print("protocol = ");
+  Serial.print(protocol);
+  Serial.print("; values[");
   Serial.print(length);
   Serial.print("] = {");
   Serial.print(values);
-  Serial.println("}");
+  Serial.print("}");
+  Serial.print("; size = ");
+  Serial.print(size);
+  Serial.println("");
 
   // Send IR signal
   if (protocol == decode_type_t::UNKNOWN) {
@@ -75,19 +80,24 @@ void callback(char* topic, byte* payload, unsigned int payload_length) {
 
     uint16_t rawData[length];
     for (int i = 0; i < length; i++) {
-      rawData[i] = values_array[i].toInt();
+      rawData[i] = (uint64_t)(values_array[i].toDouble());
     }
 
     IrSender.sendRaw(rawData, length, IR_FREQUENCY);
+    Serial.println("IR sent via rawData");
 
-    delete[] values_array;
-    delete[] rawData;
+    // delete[] values_array;
+    // delete[] rawData;
   }
   else if (hasACState(protocol)) {
-    IrSender.send(protocol, values.toInt(), size / 8);
+    uint64_t data = (uint64_t)(values.toDouble());
+    IrSender.send(protocol, data, size / 8);
+    Serial.println("IR sent with ACState");
   }
   else {
-    IrSender.send(protocol, values.toInt(), size);
+    uint64_t data = (uint64_t)(values.toDouble());
+    IrSender.send(protocol, data, size);
+    Serial.println("IR sent");
   }
 }
 
@@ -113,7 +123,7 @@ void connect_mqtt() {
 
     if (client.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS)) {
       Serial.println("connected");
-      client.publish("connected", "Receiver connected successfully");
+      client.publish("connected", "Transmitter connected");
 
       client.subscribe("signal");
     } else {
