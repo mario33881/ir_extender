@@ -11,7 +11,7 @@
 #include "secrets.h"
 
 #define IR_SEND_PIN 12
-#define IR_FREQUENCY 38
+#define IR_FREQUENCY 38000
 
 
 WiFiClientSecure espClient;
