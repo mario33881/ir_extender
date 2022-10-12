@@ -39,7 +39,7 @@
 % Contents
 \section{Descrizione}
 
-    L'IR extender permette di controllare, anche da remoto, dispositivi infrarossi a lunga distanza attraverso Internet.
+    L'IR Extender permette di controllare da remoto dispositivi infrarossi a lunga distanza attraverso Internet.
 
     \begin{figure}[H]
       \centering
@@ -47,11 +47,11 @@
       \caption{IR Extender}
     \end{figure}
 
-    Il sistema e' composto da 3 componenti:
+    Il sistema è composto da 3 componenti:
     \begin{itemize}
-        \item Ricevitore: riceve un segnale infrarossi e lo comunica al broker MQTT attraverso un messaggio
-        \item Broker MQTT: inoltra il messaggio ricevuto e lo trasmette al trasmettitore
-        \item Trasmettitore: riceve il messaggio dal broker MQTT e propaga il segnale infrarossi verso il dispositivo da controllare
+        \item Ricevitore: riceve un segnale infrarossi e lo comunica al Broker MQTT attraverso un messaggio
+        \item Broker MQTT: inoltra il messaggio ricevuto al trasmettitore
+        \item Trasmettitore: riceve il messaggio dal Broker MQTT e propaga il segnale infrarossi verso il dispositivo da controllare
     \end{itemize}
 
     \alertinfo{Ricevitore e trasmettitore possono essere collegati alla stessa rete \mbox{Wi-Fi} oppure a due reti \mbox{Wi-Fi} differenti.}
@@ -85,7 +85,7 @@
     \subsection{Broker MQTT (HiveMQ)}
     \label{subsec:Broker}
 
-    Per permettere la comunicazione tra ricevitore e trasmettitore e' prima necessario configurare il broker MQTT:
+    Per permettere la comunicazione tra ricevitore e trasmettitore è prima necessario configurare il broker MQTT:
 
     \begin{enumerate}
       \item \href{https://console.hivemq.cloud/}{Registrarsi su HiveMQ}
@@ -127,7 +127,7 @@
         \item Aprire la cartella \texttt{receiver/src}
         \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
         \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
-        \item Programmare l'ESP 32
+        \item Caricare il programma sull'ESP32
     \end{itemize}
 
     \begin{figure}[H]
@@ -156,7 +156,7 @@
         \item Aprire la cartella \texttt{transmitter/src}
         \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
         \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
-        \item Programmare l'ESP 32
+        \item Caricare il programma sull'ESP32
     \end{itemize}
 
     \begin{figure}[H]
@@ -170,66 +170,78 @@
 
     \subsection{Protocollo messaggio MQTT}
 
-    La libreria che interpreta i dati rilevati dal sensore infrarossi puo' rilevare 3 tipi di protocolli:
+    La libreria che interpreta i dati rilevati dal sensore infrarossi può rilevare 3 tipi di protocolli:
     \begin{itemize}
-        \item Protocollo a stati: composto da piu' di un valore. Usato, ad esempio, per i condizionatori.
+        \item Protocollo a stati: composto da più di un valore. Usato, ad esempio, per i condizionatori.
         \item Protocollo semplice: formato da un singolo valore.
-        \item Protocollo sconosciuto: non e' stato possibile rilevare il protocollo. Verranno inviati tutti i valori rilevati durante la lettura.
+        \item Protocollo sconosciuto: non è stato possibile rilevare il protocollo. Verranno inviati tutti i valori rilevati durante la lettura.
     \end{itemize}
 
-    Per gestire le 3 casistiche si e' realizzato un protocollo per il messaggio MQTT.
+    \noindent
+    Per gestire le 3 casistiche si è realizzato un protocollo per il messaggio MQTT:
+    \smallskip
 
-    Per i protocolli a stati verra' inviata una stringa con il formato:
+    \begin{samepage}
+      Per i protocolli a stati verrà inviata una stringa con il formato:
 
-    \begin{verbatim}
-<protocol>|<length>|<value1>,<value2>,...|<size>
-    \end{verbatim}
-            
-    Dove:
-    \begin{itemize}
-        \item "protocol" e' un identificativo del protocollo rilevato dal sensore IR
-        \item "length" e' il numero di valori "valueX"
-        \item "valueX" sono valori raw letti dal sensore IR
-        \item "size" (in bit) verra' usato dal metodo send() con il trasmettitore IR
-    \end{itemize}
+      \begin{verbatim}
+        <protocol>|<length>|<value1>,<value2>,...|<size>
+      \end{verbatim}
+              
+      Dove:
+      \begin{itemize}
+          \item "protocol" è un identificativo del protocollo rilevato dal sensore IR
+          \item "length" è il numero di valori "valueX"
+          \item "valueX" sono valori \emph{raw} letti dal sensore IR
+          \item "size" (in bit) verrà usato dal metodo send() con il trasmettitore IR
+      \end{itemize}
+    \end{samepage}
 
-    Per i protocolli semplici verra' inviata una stringa con il formato:
+    \bigskip
 
-    \begin{verbatim}
-<protocol>|1|<value>|<size>
-    \end{verbatim}
+    \begin{samepage}
+      Per i protocolli semplici verrà inviata una stringa con il formato:
 
-    Dove:
-    \begin{itemize}
-        \item "protocol" e' un identificativo del protocollo rilevato dal sensore IR
-        \item "1" indica che c'e' un solo valore letto
-        \item "value" e' il valore letto. Verra' usato dal metodo send() con il trasmettitore IR
-        \item "size" (in bit) verra' usato dal metodo send() con il trasmettitore IR
-    \end{itemize}
+      \begin{verbatim}
+        <protocol>|1|<value>|<size>
+      \end{verbatim}
 
-    Ed infine per i protocolli non riconosciuti verra' inviato un messaggio con questo formato:
+      Dove:
+      \begin{itemize}
+          \item "protocol" è un identificativo del protocollo rilevato dal sensore IR
+          \item "1" indica che c'è un solo valore letto
+          \item "value" è il valore letto. Verrà usato dal metodo send() con il trasmettitore IR
+          \item "size" (in bit) verrà usato dal metodo send() con il trasmettitore IR
+      \end{itemize}
+    \end{samepage}
 
-    \begin{verbatim}
--1|<length>|<value1>,<value2>,...|-1
-    \end{verbatim}
+    \bigskip
 
-    Dove:
-    \begin{itemize}
-        \item "-1" indica che il protocollo non e' stato riconosciuto
-        \item "length" e' il numero di valori "valueX"
-        \item "valueX" sono valori raw letti dal sensore IR. Questi valori verranno trasmessi dal metodo sendRaw() con il trasmettitore IR
-        \item "-1" (size) indica "non applicabile" poiche' il protocollo non richiede state[]
-    \end{itemize}
+    \begin{samepage}
+      Protocolli non riconosciuti verrà inviato un messaggio con questo formato:
+
+      \begin{verbatim}
+        -1|<length>|<value1>,<value2>,...|-1
+      \end{verbatim}
+
+      Dove:
+      \begin{itemize}
+          \item "-1" indica che il protocollo non è stato riconosciuto
+          \item "length" è il numero di valori "valueX"
+          \item "valueX" sono valori raw letti dal sensore IR. Questi valori verranno trasmessi dal metodo sendRaw() con il trasmettitore IR
+          \item "-1" (size) indica "non applicabile" poichè il protocollo non richiede state[]
+      \end{itemize}
+    \end{samepage}
 
 \section{Troubleshooting}
 
     \subsection{Segnale infrarossi non rilevato}
 
-    Per non rilevare troppo rumore e' stata modificata la dimensione del buffer di memoria usato per memorizzare i dati letti dal sensore infrarossi.
+    Per non rilevare troppo rumore è stata modificata la dimensione del buffer di memoria usato per memorizzare i dati letti dal sensore infrarossi.
 
-    E' possibile cambiare la dimensione del buffer dal file \texttt{receiver/src/main.hpp} modificando la variabile "BUFFER\_SIZE": riducendo il valore aumentera' la velocita' di lettura 
-    del sensore infrarossi permettendo di leggere (dal sensore) e trasmettere (al broker MQTT) piu' valori ma aumentando la probabilita' di rilevare rumore e quindi di ottenere dati inutilizzabili dal trasmettitore.
-    Aumentando la dimensione del buffer rallentera' sensibilmente la velocita' del sistema con il rischio che il sensore infrarossi non riuscira' a rilevare dati sufficenti per poterli spedire al broker MQTT.
+    È possibile cambiare la dimensione del buffer dal file \texttt{receiver/src/main.hpp} modificando la variabile "BUFFER\_SIZE": riducendo il valore aumenterà la velocità di lettura 
+    del sensore infrarossi permettendo di leggere (dal sensore) e trasmettere (al broker MQTT) più valori ma aumentando la probabilità di rilevare rumore e quindi di ottenere dati inutilizzabili dal trasmettitore.
+    Aumentando la dimensione del buffer rallenterà sensibilmente la velocità del sistema con il rischio che il sensore infrarossi non riuscirà a rilevare dati sufficenti per poterli spedire al broker MQTT.
 
 \clearpage
 
