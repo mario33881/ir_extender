@@ -12,7 +12,8 @@
 
 % Setup
 \hypersetup{hidelinks}
-
+\hyphenation{knolleary}
+\hyphenation{crankyoldgit}
 
 % Document
 \begin{document}
@@ -36,11 +37,9 @@
 \pagenumbering{arabic}
 
 % Contents
-\section{Introduzione}
+\section{Descrizione}
 
-  Il seguente documento descrive come realizzare un IR Extender.
-
-  \subsection{Funzionamento}
+    L'IR extender permette di controllare, anche da remoto, dispositivi infrarossi a lunga distanza attraverso Internet.
 
     \begin{figure}[H]
       \centering
@@ -48,87 +47,45 @@
       \caption{IR Extender}
     \end{figure}
 
-    % TODO: describe how to use the IR Extender
+    Il sistema e' composto da 3 componenti:
+    \begin{itemize}
+        \item Ricevitore: riceve un segnale infrarossi e lo comunica al broker MQTT attraverso un messaggio
+        \item Broker MQTT: inoltra il messaggio ricevuto e lo trasmette al trasmettitore
+        \item Trasmettitore: riceve il messaggio dal broker MQTT e propaga il segnale infrarossi verso il dispositivo da controllare
+    \end{itemize}
 
-  \subsection{Componenti}
+    \alertinfo{Ricevitore e trasmettitore possono essere collegati alla stessa rete \mbox{Wi-Fi} oppure a due reti \mbox{Wi-Fi} differenti.}
 
+\section{Configurazione}
+
+    \subsection{Prerequisiti}
+
+    Componenti elettronici:
     \begin{itemize}
       \item IR Receiver
       \item IR Transmitter
-      \item ESP32 / ESP8266 * 2
+      \item ESP32 * 2
       \item Jumpers * 6
-      \item Breadboard * 2
     \end{itemize}
 
-  \subsection{Online Services}
-
+    \noindent
+    Servizi cloud:
     \begin{itemize}
       \item Broker MQTT (es. \href{https://www.hivemq.com/}{HiveMQ})
     \end{itemize}
 
-  \alertinfo{Il Ricevitore e Trasmettitore possono essere collegati a due reti WiFi differenti.}
+    \noindent
+    Librerie:
+    \begin{itemize}
+        \item Espressif 32: supporto alla board ESP32.
+        \item PubSubClient (knolleary): libreria per la comunicazione attraverso il protocollo MQTT
+        \item IRremoteESP8266 (crankyoldgit): libreria per inviare/ricevere segnali infrarossi
+    \end{itemize}
 
+    \subsection{Broker MQTT (HiveMQ)}
+    \label{subsec:Broker}
 
-\section{Ricevitore}
-\label{sec:receiver}
-
-  Il dispositivo ricevitore si occupa di:
-
-  \begin{enumerate}
-    \item Ricevere un segnale infrarossi da un telecomando
-    \item Inviare l'informazione del segnale infrarossi, utilizzando la rete Wi-Fi, con il protocollo MQTT al Broker MQTT
-  \end{enumerate}
-
-  \subsection{Circuito}
-
-    \begin{figure}[H]
-      \centering
-      \includegraphics[width=0.5\textwidth,height=\textheight,keepaspectratio]{assets/receiver_fritzing}
-      \caption{Circuito Ricevitore}
-    \end{figure}
-
-  \subsection{Configurazione}
-
-  \begin{enumerate}
-    \item Aprire la cartella \texttt{receiver/src}
-    \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
-    \item Inserire i dati di accesso della rete WiFi e del \hyperref[sec:Broker]{Broker MQTT}
-  \end{enumerate}
-
-
-\section{Trasmettitore}
-\label{sec:transmitter}
-
-  Il dispositivo trasmettitore si occupa di:
-
-  \begin{enumerate}
-    \item Ricevere l'informazione dal Broker MQTT
-    \item Inviare il segnale ricevuto tramite il trasmettitore infrarossi
-  \end{enumerate}
-
-
-  \subsection{Circuito}
-
-    \begin{figure}[H]
-      \centering
-      \includegraphics[width=0.5\textwidth,height=\textheight,keepaspectratio]{assets/transmitter_fritzing}
-      \caption{Circuito Trasmettitore}
-    \end{figure}
-
-
-  \subsection{Configurazione}
-
-    \begin{enumerate}
-      \item Aprire la cartella \texttt{transmitter/src}
-      \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
-      \item Inserire i dati di accesso della rete WiFi e del \hyperref[sec:Broker]{Broker MQTT}
-    \end{enumerate}
-
-
-\section{Broker MQTT (HiveMQ)}
-\label{sec:Broker}
-
-  \subsection{Configurazione}
+    Per permettere la comunicazione tra ricevitore e trasmettitore e' prima necessario configurare il broker MQTT:
 
     \begin{enumerate}
       \item \href{https://console.hivemq.cloud/}{Registrarsi su HiveMQ}
@@ -153,6 +110,127 @@
         \end{figure}
 
     \end{enumerate}
+
+    \subsection{Ricevitore}
+    \label{subsec:receiver}
+
+    Il dispositivo ricevitore si occupa di:
+
+    \begin{enumerate}
+        \item Ricevere un segnale infrarossi da un telecomando
+        \item Inviare l'informazione del segnale infrarossi, utilizzando la rete Wi-Fi, con il protocollo MQTT al Broker MQTT
+    \end{enumerate}
+
+    Per predisporre il ricevitore a ricevere segnali infrarossi e ad inoltrarli al broker MQTT occorre:
+    \begin{itemize}
+        \item Collegare il ricevitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_ricevitore}.
+        \item Aprire la cartella \texttt{receiver/src}
+        \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
+        \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
+        \item Programmare l'ESP 32
+    \end{itemize}
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.5\textwidth,height=\textheight,keepaspectratio]{assets/receiver_fritzing}
+      \caption{Circuito Ricevitore}
+      \label{fig:circuito_ricevitore}
+    \end{figure}
+
+
+    \subsection{Trasmettitore}
+    \label{subsec:transmitter}
+
+    Il dispositivo trasmettitore si occupa di:
+
+    \begin{enumerate}
+        \item Ricevere l'informazione dal Broker MQTT
+        \item Inviare il segnale ricevuto tramite il trasmettitore infrarossi
+    \end{enumerate}
+
+    Per predisporre il trasmettitore a ricevere messaggi dal broker MQTT e di propagare segnali infrarossi occorre:
+
+    \begin{itemize}
+        \item Collegare il ricevitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_trasmettitore}.
+            
+        \item Aprire la cartella \texttt{transmitter/src}
+        \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
+        \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
+        \item Programmare l'ESP 32
+    \end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\textwidth,height=\textheight,keepaspectratio]{assets/transmitter_fritzing}
+        \caption{Circuito Trasmettitore}
+        \label{fig:circuito_trasmettitore}
+    \end{figure}
+
+\section{Scelte progettuali}
+
+    \subsection{Protocollo messaggio MQTT}
+
+    La libreria che interpreta i dati rilevati dal sensore infrarossi puo' rilevare 3 tipi di protocolli:
+    \begin{itemize}
+        \item Protocollo a stati: composto da piu' di un valore. Usato, ad esempio, per i condizionatori.
+        \item Protocollo semplice: formato da un singolo valore.
+        \item Protocollo sconosciuto: non e' stato possibile rilevare il protocollo. Verranno inviati tutti i valori rilevati durante la lettura.
+    \end{itemize}
+
+    Per gestire le 3 casistiche si e' realizzato un protocollo per il messaggio MQTT.
+
+    Per i protocolli a stati verra' inviata una stringa con il formato:
+
+    \begin{verbatim}
+<protocol>|<length>|<value1>,<value2>,...|<size>
+    \end{verbatim}
+            
+    Dove:
+    \begin{itemize}
+        \item "protocol" e' un identificativo del protocollo rilevato dal sensore IR
+        \item "length" e' il numero di valori "valueX"
+        \item "valueX" sono valori raw letti dal sensore IR
+        \item "size" (in bit) verra' usato dal metodo send() con il trasmettitore IR
+    \end{itemize}
+
+    Per i protocolli semplici verra' inviata una stringa con il formato:
+
+    \begin{verbatim}
+<protocol>|1|<value>|<size>
+    \end{verbatim}
+
+    Dove:
+    \begin{itemize}
+        \item "protocol" e' un identificativo del protocollo rilevato dal sensore IR
+        \item "1" indica che c'e' un solo valore letto
+        \item "value" e' il valore letto. Verra' usato dal metodo send() con il trasmettitore IR
+        \item "size" (in bit) verra' usato dal metodo send() con il trasmettitore IR
+    \end{itemize}
+
+    Ed infine per i protocolli non riconosciuti verra' inviato un messaggio con questo formato:
+
+    \begin{verbatim}
+-1|<length>|<value1>,<value2>,...|-1
+    \end{verbatim}
+
+    Dove:
+    \begin{itemize}
+        \item "-1" indica che il protocollo non e' stato riconosciuto
+        \item "length" e' il numero di valori "valueX"
+        \item "valueX" sono valori raw letti dal sensore IR. Questi valori verranno trasmessi dal metodo sendRaw() con il trasmettitore IR
+        \item "-1" (size) indica "non applicabile" poiche' il protocollo non richiede state[]
+    \end{itemize}
+
+\section{Troubleshooting}
+
+    \subsection{Segnale infrarossi non rilevato}
+
+    Per non rilevare troppo rumore e' stata modificata la dimensione del buffer di memoria usato per memorizzare i dati letti dal sensore infrarossi.
+
+    E' possibile cambiare la dimensione del buffer dal file \texttt{receiver/src/main.hpp} modificando la variabile "BUFFER\_SIZE": riducendo il valore aumentera' la velocita' di lettura 
+    del sensore infrarossi permettendo di leggere (dal sensore) e trasmettere (al broker MQTT) piu' valori ma aumentando la probabilita' di rilevare rumore e quindi di ottenere dati inutilizzabili dal trasmettitore.
+    Aumentando la dimensione del buffer rallentera' sensibilmente la velocita' del sistema con il rischio che il sensore infrarossi non riuscira' a rilevare dati sufficenti per poterli spedire al broker MQTT.
+
 \clearpage
 
 % List of figures
