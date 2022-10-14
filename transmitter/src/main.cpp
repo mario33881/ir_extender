@@ -1,27 +1,31 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#include <IRremote.hpp>
+#include <IRsend.h>
+#include <IRrecv.h>
+#include <IRremoteESP8266.h>
+#include <IRutils.h>
 
 #include <Utils.hpp>
 
 #include "secrets.h"
 
 #define IR_SEND_PIN 12
-#define IR_FREQUENCY 38
+#define IR_FREQUENCY 38000
 
 
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
+IRsend IrSender(IR_SEND_PIN);
 
 
-void callback(char* topic, byte* payload, unsigned int length);
+void callback(char* topic, byte* payload, unsigned int payload_length);
 void connect_wifi();
 void connect_mqtt();
 
 void setup() {
   Serial.begin(9600);
-  IrSender.begin(IR_SEND_PIN);
+  IrSender.begin();
 
   connect_wifi();
 
@@ -40,40 +44,61 @@ void loop() {
   client.loop();
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
+void callback(char* topic, byte* payload, unsigned int payload_length) {
   Serial.print("Message arrived in [");
   Serial.print(topic);
   Serial.println("] ");
 
   String message = "";
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < payload_length; i++) {
     message += (char)payload[i];
   }
 
-  String message_parts[2];
-  split(message, '|', message_parts, 2, 1);
+  String message_parts[4];
+  split(message, '|', message_parts, 4);
 
-  int size = message_parts[0].toInt();
-  String rawData_str[size];
-  split(message_parts[1], ',', rawData_str, size);
+  decode_type_t protocol = (decode_type_t)message_parts[0].toInt();
+  int length = message_parts[1].toInt();
+  String values(message_parts[2]);
+  int size = message_parts[3].toInt();
 
-  uint16_t rawData[size];
-  for (int i = 0; i < size; i++) {
-    rawData[i] = rawData_str[i].toInt();
-  }
-
-  Serial.print("rawData[");
-  Serial.print(size);
+  Serial.print("protocol = ");
+  Serial.print(protocol);
+  Serial.print("; values[");
+  Serial.print(length);
   Serial.print("] = {");
-  for (int i = 0; i < size; i++) {
-    Serial.print(rawData[i]);
-    if (i < size-1)
-      Serial.print(", ");
-  }
-  Serial.println("}");
+  Serial.print(values);
+  Serial.print("}");
+  Serial.print("; size = ");
+  Serial.print(size);
+  Serial.println("");
 
   // Send IR signal
-  IrSender.sendRaw(rawData, length, IR_FREQUENCY);
+  if (protocol == decode_type_t::UNKNOWN) {
+    String values_array[length];
+    split(values, ',', values_array, length);
+
+    uint16_t rawData[length];
+    for (int i = 0; i < length; i++) {
+      rawData[i] = (uint64_t)(values_array[i].toDouble());
+    }
+
+    IrSender.sendRaw(rawData, length, IR_FREQUENCY);
+    Serial.println("IR sent via rawData");
+
+    // delete[] values_array;
+    // delete[] rawData;
+  }
+  else if (hasACState(protocol)) {
+    uint64_t data = (uint64_t)(values.toDouble());
+    IrSender.send(protocol, data, size / 8);
+    Serial.println("IR sent with ACState");
+  }
+  else {
+    uint64_t data = (uint64_t)(values.toDouble());
+    IrSender.send(protocol, data, size);
+    Serial.println("IR sent");
+  }
 }
 
 void connect_wifi() {
@@ -98,7 +123,7 @@ void connect_mqtt() {
 
     if (client.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS)) {
       Serial.println("connected");
-      client.publish("connected", "Receiver connected successfully");
+      client.publish("connected", "Transmitter connected");
 
       client.subscribe("signal");
     } else {
