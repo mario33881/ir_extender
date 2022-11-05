@@ -75,10 +75,10 @@ void callback(char* topic, byte* payload, unsigned int payload_length) {
 
   // Send IR signal
   if (protocol == decode_type_t::UNKNOWN) {
-    String values_array[length];
+    String* values_array{ new String[length]{} };
     split(values, ',', values_array, length);
 
-    uint16_t rawData[length];
+    uint16_t* rawData{ new uint16_t[length]{} };
     for (int i = 0; i < length; i++) {
       rawData[i] = (uint64_t)(values_array[i].toDouble());
     }
@@ -86,8 +86,8 @@ void callback(char* topic, byte* payload, unsigned int payload_length) {
     IrSender.sendRaw(rawData, length, IR_FREQUENCY);
     Serial.println("IR sent via rawData");
 
-    // delete[] values_array;
-    // delete[] rawData;
+    delete[] values_array;
+    delete[] rawData;
   }
   else if (hasACState(protocol)) {
     uint64_t data = (uint64_t)(values.toDouble());
