@@ -124,6 +124,10 @@
     Per predisporre il ricevitore a ricevere segnali infrarossi e ad inoltrarli al broker MQTT occorre:
     \begin{itemize}
         \item Collegare il ricevitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_ricevitore}.
+
+          \alertinfo{Collegare il ground del ricevitore al pin GND dell'ESP32, VCC al pin 3V3, data/signal al pin G13/13.}
+          \alertinfo{ATTENZIONE: assicurarsi di collegare correttamente l'alimentazione e il cavo dati verificando il pinout del ricevitore infrarossi e dell'ESP32. I pin potrebbero essere posizionati diversamente (da scheda a scheda, da sensore a sensore) rispetto allo schema nella figura~\ref{fig:circuito_ricevitore}.}
+
         \item Aprire la cartella \texttt{receiver/src}
         \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
         \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
@@ -151,7 +155,10 @@
     Per predisporre il trasmettitore a ricevere messaggi dal broker MQTT e di propagare segnali infrarossi occorre:
 
     \begin{itemize}
-        \item Collegare il ricevitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_trasmettitore}.
+        \item Collegare il trasmettitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_trasmettitore}.
+
+          \alertinfo{Collegare il ground del trasmettitore al pin GND dell'ESP32, VCC al pin 3V3, data/signal al pin G12/12.}
+          \alertinfo{ATTENZIONE: assicurarsi di collegare correttamente l'alimentazione e il cavo dati verificando il pinout del trasmettitore infrarossi e dell'ESP32. I pin potrebbero essere posizionati diversamente (da scheda a scheda, da sensore a sensore) rispetto allo schema nella figura~\ref{fig:circuito_trasmettitore}.}
             
         \item Aprire la cartella \texttt{transmitter/src}
         \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
