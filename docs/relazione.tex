@@ -68,19 +68,23 @@
       \item Jumpers * 6
     \end{itemize}
 
-    \noindent
-    Servizi cloud:
-    \begin{itemize}
-      \item Broker MQTT (es. \href{https://www.hivemq.com/}{HiveMQ})
-    \end{itemize}
+    \begin{samepage}
+      \noindent
+      Servizi cloud:
+      \begin{itemize}
+        \item Broker MQTT (es. \href{https://www.hivemq.com/}{HiveMQ})
+      \end{itemize}
+    \end{samepage}
 
-    \noindent
-    Librerie:
-    \begin{itemize}
-      \item Espressif 32: supporto alla board ESP32.
-      \item PubSubClient (knolleary): libreria per la comunicazione attraverso il protocollo MQTT
-      \item IRremoteESP8266 (crankyoldgit): libreria per inviare/ricevere segnali infrarossi
-    \end{itemize}
+    \begin{samepage}
+      \noindent
+      Librerie:
+      \begin{itemize}
+        \item Espressif 32: supporto alla board ESP32.
+        \item PubSubClient (knolleary): libreria per la comunicazione attraverso il protocollo MQTT
+        \item IRremoteESP8266 (crankyoldgit): libreria per inviare/ricevere segnali infrarossi
+      \end{itemize}
+    \end{samepage}
 
     \subsection{Broker MQTT (HiveMQ)}
     \label{subsec:Broker}
@@ -189,21 +193,19 @@
     Per gestire le 3 casistiche si è realizzato un protocollo per il messaggio MQTT:
     \smallskip
 
-    \begin{samepage}
-      Per i protocolli a stati verrà inviata una stringa con il formato:
+    Per i protocolli a stati verrà inviata una stringa con il formato:
 
-      \begin{verbatim}
-        <protocol>|<length>|<value1>,<value2>,...|<size>
-      \end{verbatim}
-              
-      Dove:
-      \begin{itemize}
-        \item "protocol" è un identificativo del protocollo rilevato dal sensore IR
-        \item "length" è il numero di valori "valueX"
-        \item "valueX" sono valori \emph{raw} letti dal sensore IR
-        \item "size" (in bit) verrà usato dal metodo send() con il trasmettitore IR
-      \end{itemize}
-    \end{samepage}
+    \begin{verbatim}
+      <protocol>|<length>|<value1>,<value2>,...|<size>
+    \end{verbatim}
+
+    Dove:
+    \begin{itemize}
+      \item "protocol" è un identificativo del protocollo rilevato dal sensore IR
+      \item "length" è il numero di valori "valueX"
+      \item "valueX" sono valori \emph{raw} letti dal sensore IR
+      \item "size" (in bit) verrà usato dal metodo send() con il trasmettitore IR
+    \end{itemize}
 
     \bigskip
 
