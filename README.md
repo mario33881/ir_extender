@@ -42,7 +42,7 @@ I dispositivi sono schede NodeMCU per permettere di sviluppare velocemente e com
 * [X] Completare il codice del receiver: fatto
 * [X] Completare il codice del transmitter: fatto
 * [X] Utilizzare una piattaforma cloud ([HiveMQ](https://www.hivemq.com/)): fatto
-* [ ] Scrivere una documentazione in LaTeX: in corso
+* [X] Scrivere la documentazione in LaTeX: fatto
 * [X] Creare schemi in fritzing per la documentazione: fatto
 
 ## Autori

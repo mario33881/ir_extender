@@ -8,3 +8,5 @@ docs/*.toc
 docs/*.fdb_latexmk
 docs/*.log
 docs/*.fls
+docs/*.lof
+docs/*.out
