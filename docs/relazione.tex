@@ -49,9 +49,9 @@
 
     Il sistema è composto da 3 componenti:
     \begin{itemize}
-        \item Ricevitore: riceve un segnale infrarossi e lo comunica al Broker MQTT attraverso un messaggio
-        \item Broker MQTT: inoltra il messaggio ricevuto al trasmettitore
-        \item Trasmettitore: riceve il messaggio dal Broker MQTT e propaga il segnale infrarossi verso il dispositivo da controllare
+      \item Ricevitore: riceve un segnale infrarossi e lo comunica al Broker MQTT attraverso un messaggio
+      \item Broker MQTT: inoltra il messaggio ricevuto al trasmettitore
+      \item Trasmettitore: riceve il messaggio dal Broker MQTT e propaga il segnale infrarossi verso il dispositivo da controllare
     \end{itemize}
 
     \alertinfo{Ricevitore e trasmettitore possono essere collegati alla stessa rete \mbox{Wi-Fi} oppure a due reti \mbox{Wi-Fi} differenti.}
@@ -77,9 +77,9 @@
     \noindent
     Librerie:
     \begin{itemize}
-        \item Espressif 32: supporto alla board ESP32.
-        \item PubSubClient (knolleary): libreria per la comunicazione attraverso il protocollo MQTT
-        \item IRremoteESP8266 (crankyoldgit): libreria per inviare/ricevere segnali infrarossi
+      \item Espressif 32: supporto alla board ESP32.
+      \item PubSubClient (knolleary): libreria per la comunicazione attraverso il protocollo MQTT
+      \item IRremoteESP8266 (crankyoldgit): libreria per inviare/ricevere segnali infrarossi
     \end{itemize}
 
     \subsection{Broker MQTT (HiveMQ)}
@@ -117,21 +117,22 @@
     Il dispositivo ricevitore si occupa di:
 
     \begin{enumerate}
-        \item Ricevere un segnale infrarossi da un telecomando
-        \item Inviare l'informazione del segnale infrarossi, utilizzando la rete Wi-Fi, con il protocollo MQTT al Broker MQTT
+      \item Ricevere un segnale infrarossi da un telecomando
+      \item Inviare l'informazione del segnale infrarossi, utilizzando la rete Wi-Fi, con il protocollo MQTT al Broker MQTT
     \end{enumerate}
 
     Per predisporre il ricevitore a ricevere segnali infrarossi e ad inoltrarli al broker MQTT occorre:
+
     \begin{itemize}
-        \item Collegare il ricevitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_ricevitore}.
+      \item Collegare il ricevitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_ricevitore}.
 
-          \alertinfo{Collegare il ground del ricevitore al pin GND dell'ESP32, VCC al pin 3V3, data/signal al pin G13/13.}
-          \alertinfo{ATTENZIONE: assicurarsi di collegare correttamente l'alimentazione e il cavo dati verificando il pinout del ricevitore infrarossi e dell'ESP32. I pin potrebbero essere posizionati diversamente (da scheda a scheda, da sensore a sensore) rispetto allo schema nella figura~\ref{fig:circuito_ricevitore}.}
+        \alertinfo{Collegare il ground del ricevitore al pin GND dell'ESP32, VCC al pin 3V3, data/signal al pin G13/13.}
+        \alertinfo{ATTENZIONE: assicurarsi di collegare correttamente l'alimentazione e il cavo dati verificando il pinout del ricevitore infrarossi e dell'ESP32. I pin potrebbero essere posizionati diversamente (da scheda a scheda, da sensore a sensore) rispetto allo schema nella figura~\ref{fig:circuito_ricevitore}.}
 
-        \item Aprire la cartella \texttt{receiver/src}
-        \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
-        \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
-        \item Caricare il programma sull'ESP32
+      \item Aprire la cartella \texttt{receiver/src}
+      \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
+      \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
+      \item Caricare il programma sull'ESP32
     \end{itemize}
 
     \begin{figure}[H]
@@ -148,29 +149,29 @@
     Il dispositivo trasmettitore si occupa di:
 
     \begin{enumerate}
-        \item Ricevere l'informazione dal Broker MQTT
-        \item Inviare il segnale ricevuto tramite il trasmettitore infrarossi
+      \item Ricevere l'informazione dal Broker MQTT
+      \item Inviare il segnale ricevuto tramite il trasmettitore infrarossi
     \end{enumerate}
 
     Per predisporre il trasmettitore a ricevere messaggi dal broker MQTT e di propagare segnali infrarossi occorre:
 
     \begin{itemize}
-        \item Collegare il trasmettitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_trasmettitore}.
+      \item Collegare il trasmettitore infrarossi all'ESP32 come mostrato nella figura~\ref{fig:circuito_trasmettitore}.
 
-          \alertinfo{Collegare il ground del trasmettitore al pin GND dell'ESP32, VCC al pin 3V3, data/signal al pin G12/12.}
-          \alertinfo{ATTENZIONE: assicurarsi di collegare correttamente l'alimentazione e il cavo dati verificando il pinout del trasmettitore infrarossi e dell'ESP32. I pin potrebbero essere posizionati diversamente (da scheda a scheda, da sensore a sensore) rispetto allo schema nella figura~\ref{fig:circuito_trasmettitore}.}
-            
-        \item Aprire la cartella \texttt{transmitter/src}
-        \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
-        \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
-        \item Caricare il programma sull'ESP32
+        \alertinfo{Collegare il ground del trasmettitore al pin GND dell'ESP32, VCC al pin 3V3, data/signal al pin G12/12.}
+        \alertinfo{ATTENZIONE: assicurarsi di collegare correttamente l'alimentazione e il cavo dati verificando il pinout del trasmettitore infrarossi e dell'ESP32. I pin potrebbero essere posizionati diversamente (da scheda a scheda, da sensore a sensore) rispetto allo schema nella figura~\ref{fig:circuito_trasmettitore}.}
+          
+      \item Aprire la cartella \texttt{transmitter/src}
+      \item Rinominare il file \texttt{secrets.h.sample} in \texttt{secrets.h} e aprirlo
+      \item Inserire i dati di accesso della rete WiFi e del \hyperref[subsec:Broker]{Broker MQTT}
+      \item Caricare il programma sull'ESP32
     \end{itemize}
 
     \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.5\textwidth,height=\textheight,keepaspectratio]{assets/transmitter_fritzing}
-        \caption{Circuito Trasmettitore}
-        \label{fig:circuito_trasmettitore}
+      \centering
+      \includegraphics[width=0.5\textwidth,height=\textheight,keepaspectratio]{assets/transmitter_fritzing}
+      \caption{Circuito Trasmettitore}
+      \label{fig:circuito_trasmettitore}
     \end{figure}
 
 \section{Scelte progettuali}
@@ -179,9 +180,9 @@
 
     La libreria che interpreta i dati rilevati dal sensore infrarossi può rilevare 3 tipi di protocolli:
     \begin{itemize}
-        \item Protocollo a stati: composto da più di un valore. Usato, ad esempio, per i condizionatori.
-        \item Protocollo semplice: formato da un singolo valore.
-        \item Protocollo sconosciuto: non è stato possibile rilevare il protocollo. Verranno inviati tutti i valori rilevati durante la lettura.
+      \item Protocollo a stati: composto da più di un valore. Usato, ad esempio, per i condizionatori.
+      \item Protocollo semplice: formato da un singolo valore.
+      \item Protocollo sconosciuto: non è stato possibile rilevare il protocollo. Verranno inviati tutti i valori rilevati durante la lettura.
     \end{itemize}
 
     \noindent
@@ -197,10 +198,10 @@
               
       Dove:
       \begin{itemize}
-          \item "protocol" è un identificativo del protocollo rilevato dal sensore IR
-          \item "length" è il numero di valori "valueX"
-          \item "valueX" sono valori \emph{raw} letti dal sensore IR
-          \item "size" (in bit) verrà usato dal metodo send() con il trasmettitore IR
+        \item "protocol" è un identificativo del protocollo rilevato dal sensore IR
+        \item "length" è il numero di valori "valueX"
+        \item "valueX" sono valori \emph{raw} letti dal sensore IR
+        \item "size" (in bit) verrà usato dal metodo send() con il trasmettitore IR
       \end{itemize}
     \end{samepage}
 
@@ -215,10 +216,10 @@
 
       Dove:
       \begin{itemize}
-          \item "protocol" è un identificativo del protocollo rilevato dal sensore IR
-          \item "1" indica che c'è un solo valore letto
-          \item "value" è il valore letto. Verrà usato dal metodo send() con il trasmettitore IR
-          \item "size" (in bit) verrà usato dal metodo send() con il trasmettitore IR
+        \item "protocol" è un identificativo del protocollo rilevato dal sensore IR
+        \item "1" indica che c'è un solo valore letto
+        \item "value" è il valore letto. Verrà usato dal metodo send() con il trasmettitore IR
+        \item "size" (in bit) verrà usato dal metodo send() con il trasmettitore IR
       \end{itemize}
     \end{samepage}
 
@@ -233,10 +234,10 @@
 
       Dove:
       \begin{itemize}
-          \item "-1" indica che il protocollo non è stato riconosciuto
-          \item "length" è il numero di valori "valueX"
-          \item "valueX" sono valori raw letti dal sensore IR. Questi valori verranno trasmessi dal metodo sendRaw() con il trasmettitore IR
-          \item "-1" (size) indica "non applicabile" poichè il protocollo non richiede state[]
+        \item "-1" indica che il protocollo non è stato riconosciuto
+        \item "length" è il numero di valori "valueX"
+        \item "valueX" sono valori raw letti dal sensore IR. Questi valori verranno trasmessi dal metodo sendRaw() con il trasmettitore IR
+        \item "-1" (size) indica "non applicabile" poichè il protocollo non richiede state[]
       \end{itemize}
     \end{samepage}
 
