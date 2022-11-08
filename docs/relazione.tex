@@ -251,6 +251,19 @@
       \end{itemize}
     \end{samepage}
 
+\section{Limitazioni trovate nello svolgimento del progetto}
+
+    \subsection{Differenze nei segnali infrarossi per ogni produttore}
+
+    Ogni produttore di dispositivi che utilizzano segnali ad infrarossi, crea un proprio protocollo per la decodifica dei segnali.
+    Le differenze possono essere termini di pause tra un dato e l'altro, intensità e frequenze.
+
+    Nel caso di un protocollo non riconosciuto il segnale verrà comunque letto come segnale grezzo e inviato, ma non è garantito il corretto funzionamento.
+
+    \bigskip
+    \noindent
+    Una lista dei protocolli supportati è disponibile sulla \href{https://github.com/crankyoldgit/IRremoteESP8266/blob/master/SupportedProtocols.md}{pagina ufficiale della libreria IRremoteESP8266}
+
 \section{Troubleshooting}
 
     \subsection{Segnale infrarossi non rilevato}
